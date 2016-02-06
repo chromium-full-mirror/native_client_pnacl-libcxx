@@ -41,6 +41,8 @@
 #elif (defined(__GLIBC__) || defined(__APPLE__)      || defined(__FreeBSD__) \
     || defined(__EMSCRIPTEN__) || defined(__IBMCPP__))
 # include <xlocale.h>
+#elif defined(_LIBCPP_HAS_MUSL_LIBC)
+# include <support/musl/xlocale.h>
 #endif // __GLIBC__ || __APPLE__ || __FreeBSD__ || __sun__ || __EMSCRIPTEN__ || __IBMCPP__
 
 #if !defined(_LIBCPP_HAS_NO_PRAGMA_SYSTEM_HEADER)
@@ -333,7 +335,7 @@ locale::operator()(const basic_string<_CharT, _Traits, _Allocator>& __x,
 class _LIBCPP_TYPE_VIS ctype_base
 {
 public:
-#ifdef __GLIBC__
+#if defined(__GLIBC__)
     typedef unsigned short mask;
     static const mask space  = _ISspace;
     static const mask print  = _ISprint;
@@ -362,7 +364,7 @@ public:
     typedef __uint32_t mask;
 #elif defined(__FreeBSD__)
     typedef unsigned long mask;
-#elif defined(__EMSCRIPTEN__) ||  defined(__NetBSD__)
+# elif defined(__EMSCRIPTEN__) || defined(__NetBSD__) || defined(_LIBCPP_HAS_MUSL_LIBC)
     typedef unsigned short mask;
 #elif defined(__ANDROID__)
     typedef unsigned char mask;
@@ -414,7 +416,11 @@ public:
     static const mask blank  = _B;
 // @LOCALMOD-END
 #else  // __GLIBC__ || _WIN32 || __APPLE__ || __FreeBSD__ || __EMSCRIPTEN__ || __sun__
+#if defined(_LIBCPP_HAS_MUSL_LIBC)
+    typedef unsigned short mask;
+#else
     typedef unsigned long mask;
+#endif
     static const mask space  = 1<<0;
     static const mask print  = 1<<1;
     static const mask cntrl  = 1<<2;
@@ -636,7 +642,7 @@ public:
 #endif
     _LIBCPP_ALWAYS_INLINE const mask* table() const  _NOEXCEPT {return __tab_;}
     static const mask* classic_table()  _NOEXCEPT;
-#if defined(__GLIBC__) || defined(__EMSCRIPTEN__)
+#if defined(__GLIBC__) || defined(__EMSCRIPTEN__) || defined(_LIBCPP_HAS_MUSL_LIBC)
     static const int* __classic_upper_table() _NOEXCEPT;
     static const int* __classic_lower_table() _NOEXCEPT;
 #endif
