@@ -37,9 +37,9 @@
 // include of <sys/cdefs.h> once https://sourceware.org/ml/newlib-cvs/2014-q3/msg00038.html
 // has had a chance to bake for a bit.
 #include <support/newlib/xlocale.h>
-// @LOCALMOD-END
-#elif (defined(__GLIBC__) || defined(__APPLE__)      || defined(__FreeBSD__) \
+#elif (defined(__APPLE__)      || defined(__FreeBSD__) \
     || defined(__EMSCRIPTEN__) || defined(__IBMCPP__))
+// @LOCALMOD-END
 # include <xlocale.h>
 #elif defined(_LIBCPP_HAS_MUSL_LIBC)
 # include <support/musl/xlocale.h>
