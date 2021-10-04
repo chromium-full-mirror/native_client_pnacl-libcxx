@@ -1,25 +1,42 @@
 //===------------------------ optional.cpp --------------------------------===//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is dual licensed under the MIT and the University of Illinois Open
-// Source Licenses. See LICENSE.TXT for details.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 
-#include "experimental/optional"
+#include "optional"
+#include "__availability"
 
-namespace std  // purposefully not using versioning namespace
-{ namespace experimental {
+namespace std
+{
 
-#ifdef _LIBCPP_HAS_NO_DEFAULTED_FUNCTIONS
+bad_optional_access::~bad_optional_access() noexcept = default;
 
-bad_optional_access::~bad_optional_access() _NOEXCEPT {}
+const char* bad_optional_access::what() const noexcept {
+  return "bad_optional_access";
+  }
 
-#else
+} // std
 
-bad_optional_access::~bad_optional_access() _NOEXCEPT = default;
 
-#endif
+#include <experimental/__config>
 
-}}  // std::experimental
+//  Preserve std::experimental::bad_optional_access for ABI compatibility
+//  Even though it no longer exists in a header file
+_LIBCPP_BEGIN_NAMESPACE_EXPERIMENTAL
+
+class _LIBCPP_EXCEPTION_ABI _LIBCPP_AVAILABILITY_BAD_OPTIONAL_ACCESS bad_optional_access
+    : public std::logic_error
+{
+public:
+	bad_optional_access() : std::logic_error("Bad optional Access") {}
+
+//	Get the key function ~bad_optional_access() into the dylib
+    virtual ~bad_optional_access() noexcept;
+};
+
+bad_optional_access::~bad_optional_access() noexcept = default;
+
+_LIBCPP_END_NAMESPACE_EXPERIMENTAL

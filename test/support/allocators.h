@@ -1,9 +1,8 @@
 //===----------------------------------------------------------------------===//
 //
-//                     The LLVM Compiler Infrastructure
-//
-// This file is dual licensed under the MIT and the University of Illinois Open
-// Source Licenses. See LICENSE.TXT for details.
+// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
 
@@ -13,14 +12,16 @@
 #include <type_traits>
 #include <utility>
 
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#include "test_macros.h"
+
+#if TEST_STD_VER >= 11
 
 template <class T>
 class A1
 {
     int id_;
 public:
-    explicit A1(int id = 0) : id_(id) {}
+    explicit A1(int id = 0) TEST_NOEXCEPT : id_(id) {}
 
     typedef T value_type;
 
@@ -31,13 +32,15 @@ public:
     static bool allocate_called;
     static std::pair<T*, std::size_t> deallocate_called;
 
-    A1(const A1& a) : id_(a.id()) {copy_called = true;}
-    A1(A1&& a) : id_(a.id())      {move_called = true;}
+    A1(const A1& a) TEST_NOEXCEPT : id_(a.id()) {copy_called = true;}
+    A1(A1&& a)      TEST_NOEXCEPT : id_(a.id()) {move_called = true;}
+    A1& operator=(const A1& a) TEST_NOEXCEPT { id_ = a.id(); copy_called = true; return *this;}
+    A1& operator=(A1&& a)      TEST_NOEXCEPT { id_ = a.id(); move_called = true; return *this;}
 
     template <class U>
-        A1(const A1<U>& a) : id_(a.id()) {copy_called = true;}
+        A1(const A1<U>& a) TEST_NOEXCEPT : id_(a.id()) {copy_called = true;}
     template <class U>
-        A1(A1<U>&& a) : id_(a.id()) {move_called = true;}
+        A1(A1<U>&& a) TEST_NOEXCEPT : id_(a.id()) {move_called = true;}
 
     T* allocate(std::size_t n)
     {
@@ -77,7 +80,7 @@ class A2
 {
     int id_;
 public:
-    explicit A2(int id = 0) : id_(id) {}
+    explicit A2(int id = 0) TEST_NOEXCEPT : id_(id) {}
 
     typedef T value_type;
 
@@ -92,13 +95,15 @@ public:
     static bool move_called;
     static bool allocate_called;
 
-    A2(const A2& a) : id_(a.id()) {copy_called = true;}
-    A2(A2&& a) : id_(a.id())      {move_called = true;}
+    A2(const A2& a) TEST_NOEXCEPT : id_(a.id()) {copy_called = true;}
+    A2(A2&& a)      TEST_NOEXCEPT : id_(a.id()) {move_called = true;}
+    A2& operator=(const A2& a) TEST_NOEXCEPT { id_ = a.id(); copy_called = true; return *this;}
+    A2& operator=(A2&& a)      TEST_NOEXCEPT { id_ = a.id(); move_called = true; return *this;}
 
-    T* allocate(std::size_t n, const void* hint)
+    T* allocate(std::size_t, const void* hint)
     {
         allocate_called = true;
-        return (T*)hint;
+        return (T*) const_cast<void *>(hint);
     }
 };
 
@@ -125,7 +130,7 @@ class A3
 {
     int id_;
 public:
-    explicit A3(int id = 0) : id_(id) {}
+    explicit A3(int id = 0) TEST_NOEXCEPT : id_(id) {}
 
     typedef T value_type;
 
@@ -139,8 +144,10 @@ public:
     static bool constructed;
     static bool destroy_called;
 
-    A3(const A3& a) : id_(a.id()) {copy_called = true;}
-    A3(A3&& a) : id_(a.id())      {move_called = true;}
+    A3(const A3& a) TEST_NOEXCEPT : id_(a.id()) {copy_called = true;}
+    A3(A3&& a)      TEST_NOEXCEPT : id_(a.id())  {move_called = true;}
+    A3& operator=(const A3& a) TEST_NOEXCEPT { id_ = a.id(); copy_called = true; return *this;}
+    A3& operator=(A3&& a)      TEST_NOEXCEPT { id_ = a.id(); move_called = true; return *this;}
 
     template <class U, class ...Args>
     void construct(U* p, Args&& ...args)
@@ -178,6 +185,6 @@ bool operator!=(const A3<T>& x, const A3<U>& y)
     return !(x == y);
 }
 
-#endif  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
+#endif // TEST_STD_VER >= 11
 
-#endif  // ALLOCATORS_H
+#endif // ALLOCATORS_H
