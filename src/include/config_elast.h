@@ -31,6 +31,10 @@
 // No _LIBCPP_ELAST needed on WASI
 #elif defined(__linux__) || defined(_LIBCPP_HAS_MUSL_LIBC)
 #define _LIBCPP_ELAST 4095
+// @LOCALMOD-START
+#elif defined(__native_client__)
+// NaCl doesn't have ELAST or __ELASTERROR
+// @LOCALMOD-END
 #elif defined(__APPLE__)
 // No _LIBCPP_ELAST needed on Apple
 #elif defined(__sun__)

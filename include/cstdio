@@ -140,9 +140,14 @@ using ::fsetpos _LIBCPP_USING_IF_EXISTS;
 #endif
 using ::ftell _LIBCPP_USING_IF_EXISTS;
 using ::rewind _LIBCPP_USING_IF_EXISTS;
-using ::clearerr _LIBCPP_USING_IF_EXISTS;
-using ::feof _LIBCPP_USING_IF_EXISTS;
-using ::ferror _LIBCPP_USING_IF_EXISTS;
+// @LOCALMOD-START
+#undef clearerr
+using ::clearerr;
+#undef feof
+using ::feof;
+#undef ferror
+using ::ferror;
+// @LOCALMOD-END
 using ::perror _LIBCPP_USING_IF_EXISTS;
 
 #ifndef _LIBCPP_HAS_NO_GLOBAL_FILESYSTEM_NAMESPACE

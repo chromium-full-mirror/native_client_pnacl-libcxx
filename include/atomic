@@ -1601,12 +1601,24 @@ struct __atomic_base  // false
   static _LIBCPP_CONSTEXPR bool is_always_lock_free = __atomic_always_lock_free(sizeof(__a_), 0);
 #endif
 
+  // @LOCALMOD-BEGIN The NaCl builtin delays resolution of the lock-free
+  //                 property until translation time (time at which the
+  //                 actual target is known).
+#if defined (__pnacl__) || (defined(__mips__) && defined (__native_client__))
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_lock_free() const volatile _NOEXCEPT
+        {return __nacl_atomic_is_lock_free(sizeof(_Tp), &__a_);}
+    _LIBCPP_INLINE_VISIBILITY
+    bool is_lock_free() const _NOEXCEPT
+        {return __nacl_atomic_is_lock_free(sizeof(_Tp), &__a_);}
+#else
     _LIBCPP_INLINE_VISIBILITY
     bool is_lock_free() const volatile _NOEXCEPT
         {return __cxx_atomic_is_lock_free(sizeof(_Tp));}
     _LIBCPP_INLINE_VISIBILITY
     bool is_lock_free() const _NOEXCEPT
         {return static_cast<__atomic_base const volatile*>(this)->is_lock_free();}
+#endif // @LOCALMOD-END
     _LIBCPP_INLINE_VISIBILITY
     void store(_Tp __d, memory_order __m = memory_order_seq_cst) volatile _NOEXCEPT
       _LIBCPP_CHECK_STORE_MEMORY_ORDER(__m)

@@ -486,7 +486,15 @@ elseif(CMAKE_CXX_COMPILER_EXTERNAL_TOOLCHAIN)
 endif()
 
 # Configure compiler.
-include(config-ix)
+# @LOCALMOD-START Use a custom compiler config because cmake try_compile always
+# tries to link an executable and linking doesnt work during bootstrap without
+# libnacl.
+if (CMAKE_SYSTEM_NAME STREQUAL "nacl")
+  include(config-ix-pnacl)
+else()
+  include(config-ix)
+endif()
+# @LOCALMOD-END
 
 # Configure coverage options.
 if (LIBCXX_GENERATE_COVERAGE)
